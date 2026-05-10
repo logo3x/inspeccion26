@@ -5,7 +5,10 @@ namespace App\Filament\Resources\Owners;
 use App\Filament\Resources\Owners\Pages\CreateOwner;
 use App\Filament\Resources\Owners\Pages\EditOwner;
 use App\Filament\Resources\Owners\Pages\ListOwners;
+use App\Filament\Resources\Owners\Pages\ViewOwner;
+use App\Filament\Resources\Owners\RelationManagers\VehiclesRelationManager;
 use App\Filament\Resources\Owners\Schemas\OwnerForm;
+use App\Filament\Resources\Owners\Schemas\OwnerInfolist;
 use App\Filament\Resources\Owners\Tables\OwnersTable;
 use App\Models\Owner;
 use BackedEnum;
@@ -48,6 +51,11 @@ class OwnerResource extends Resource
         return OwnerForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return OwnerInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return OwnersTable::configure($table);
@@ -56,7 +64,7 @@ class OwnerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            VehiclesRelationManager::class,
         ];
     }
 
@@ -65,6 +73,7 @@ class OwnerResource extends Resource
         return [
             'index' => ListOwners::route('/'),
             'create' => CreateOwner::route('/create'),
+            'view' => ViewOwner::route('/{record}'),
             'edit' => EditOwner::route('/{record}/edit'),
         ];
     }

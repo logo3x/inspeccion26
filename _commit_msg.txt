@@ -1,0 +1,14 @@
+feat: owner detail view with vehicles relation + dashboard cleanup with status chart
+
+Owner UX:
+- New ViewOwner page with infolist (Section 'Datos del propietario' incluyendo conteo de vehiculos asociados).
+- VehiclesRelationManager mostrando los vehiculos del owner con placa/marca/linea/year/clase/estado/% completado/fecha_ingreso, action 'Abrir' que navega al edit del Vehicle, $relatedResource enlazado a VehicleResource para integracion limpia.
+- Tabla de owners ahora con ViewAction + EditAction.
+- Registro: getRelations() incluye VehiclesRelationManager, getPages() incluye view.
+
+Dashboard cleanup:
+- Removed AccountWidget (Bienvenida) y FilamentInfoWidget (Filament) del AdminPanelProvider.
+- Removed ImportsTimelineChart (Filas importadas por dia).
+- Added VehicleStatusChart: linea full-width, ultimos 30 dias, 4 series (una por VehicleStatus). Cada punto = transiciones registradas en activity log. Etiqueta de cada serie incluye conteo actual de vehiculos en ese estado. Polling 60s.
+
+Smoke test del nuevo widget: 4 datasets, 30 labels, totales actuales correctos (5 Draft, 6650 PendingReview).
