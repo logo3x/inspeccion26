@@ -63,12 +63,6 @@ class ListVehicles extends ListRecords
                             ->title("Exportación encolada: {$count} vehículos")
                             ->body('Se generará en background. Puedes monitorear el progreso.')
                             ->success()
-                            ->actions([
-                                \Filament\Notifications\Actions\Action::make('view')
-                                    ->label('Ver progreso')
-                                    ->url(BulkSheetExportResource::getUrl('view', ['record' => $export]))
-                                    ->markAsRead(),
-                            ])
                             ->send();
 
                         $this->redirect(BulkSheetExportResource::getUrl('view', ['record' => $export]));
