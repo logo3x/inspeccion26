@@ -2,22 +2,26 @@
 
 namespace App\Filament\Resources\Vehicles\Tables;
 
+use App\Domain\InspectionSheets\Actions\GenerateBulkZipAction;
 use App\Domain\InspectionSheets\Actions\GenerateSheetAction;
 use App\Domain\Vehicles\Enums\VehicleStatus;
 use App\Models\Vehicle;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class VehiclesTable
 {
@@ -154,6 +158,27 @@ class VehiclesTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                BulkAction::make('downloadSheetsZip')
+                    ->label('Descargar fichas (ZIP)')
+                    ->icon('heroicon-o-archive-box-arrow-down')
+                    ->color('success')
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records, GenerateBulkZipAction $bulk) {
+                        try {
+                            $zipPath = $bulk($records);
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Error generando ZIP')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+
+                            return null;
+                        }
+
+                        return response()->download($zipPath, $bulk->suggestedZipName())
+                            ->deleteFileAfterSend(false);
+                    }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
