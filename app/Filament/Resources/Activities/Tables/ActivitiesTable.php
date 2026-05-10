@@ -14,7 +14,7 @@ class ActivitiesTable
     {
         return $table
             ->defaultSort('id', 'desc')
-            ->modifyQueryUsing(fn ($q) => $q->with('causer'))
+            ->modifyQueryUsing(fn ($query) => $query->with('causer'))
             ->columns([
                 TextColumn::make('id')->label('#'),
                 TextColumn::make('created_at')

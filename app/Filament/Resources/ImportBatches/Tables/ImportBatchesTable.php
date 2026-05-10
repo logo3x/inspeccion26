@@ -15,7 +15,7 @@ class ImportBatchesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($q) => $q->with('user')->withCount('rows'))
+            ->modifyQueryUsing(fn ($query) => $query->with('user')->withCount('rows'))
             ->defaultSort('created_at', 'desc')
             ->poll('5s')
             ->columns([
