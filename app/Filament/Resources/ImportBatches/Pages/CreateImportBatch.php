@@ -18,10 +18,15 @@ class CreateImportBatch extends CreateRecord
     /**
      * @param  array<string, mixed>  $data
      */
-    protected function handleRecord(string $modelClass, array $data): Model
+    protected function handleRecordCreation(array $data): Model
     {
-        $files = $data['file'] ?? [];
-        $storedPath = is_array($files) ? (array_values($files)[0] ?? null) : $files;
+        $files = $data['file'] ?? null;
+        if (is_array($files)) {
+            $files = array_values($files);
+            $storedPath = $files[0] ?? null;
+        } else {
+            $storedPath = $files;
+        }
 
         if (! is_string($storedPath) || $storedPath === '') {
             throw new \RuntimeException('No se recibió el archivo cargado.');
@@ -32,14 +37,12 @@ class CreateImportBatch extends CreateRecord
             $original = array_values($original)[0] ?? null;
         }
 
-        $batch = ImportBatch::create([
+        return ImportBatch::create([
             'user_id' => Auth::id(),
             'original_filename' => $original ?: basename($storedPath),
             'stored_path' => $storedPath,
             'status' => ImportBatchStatus::Queued->value,
         ]);
-
-        return $batch;
     }
 
     protected function afterCreate(): void
