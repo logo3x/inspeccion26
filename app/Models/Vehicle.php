@@ -3,17 +3,22 @@
 namespace App\Models;
 
 use App\Domain\Vehicles\Enums\VehicleStatus;
+use App\Observers\VehicleObserver;
 use Database\Factories\VehicleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+#[ObservedBy([VehicleObserver::class])]
 #[Fillable([
     'inventario_dtb',
     'placa',
@@ -45,7 +50,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Vehicle extends Model implements HasMedia
 {
     /** @use HasFactory<VehicleFactory> */
-    use HasFactory, InteractsWithMedia, SoftDeletes;
+    use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     public const PHOTOS_COLLECTION = 'photos';
 
@@ -62,6 +67,26 @@ class Vehicle extends Model implements HasMedia
             'fecha_ingreso' => 'date',
             'fecha_notificacion' => 'date',
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'placa', 'marca', 'linea', 'year', 'color', 'tipo',
+                'estado', 'observaciones', 'owner_id',
+                'fecha_ingreso', 'organismo_transito', 'ubicacion_fisica',
+                'completion_percentage',
+            ])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => 'Vehículo registrado',
+                'updated' => 'Vehículo actualizado',
+                'deleted' => 'Vehículo eliminado',
+                'restored' => 'Vehículo restaurado',
+                default => "Vehículo: {$eventName}",
+            })
+            ->useLogName('vehicle');
     }
 
     public function owner(): BelongsTo
