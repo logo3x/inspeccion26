@@ -149,10 +149,10 @@ class VehiclesTable
                     ->label('Ficha')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
-                    ->action(function (Vehicle $record, GenerateSheetAction $action) {
-                        $path = $action($record);
+                    ->action(function (Vehicle $record, GenerateSheetAction $generator) {
+                        $path = $generator($record);
 
-                        return response()->download($path, $action->suggestedDownloadName($record))
+                        return response()->download($path, $generator->suggestedDownloadName($record))
                             ->deleteFileAfterSend(false);
                     }),
                 EditAction::make(),
