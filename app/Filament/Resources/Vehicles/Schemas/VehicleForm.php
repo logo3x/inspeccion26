@@ -9,8 +9,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 
 class VehicleForm
@@ -18,6 +21,23 @@ class VehicleForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
+            Section::make('Estado del registro')
+                ->description('Cambia el estado del vehículo con un click. Los cambios se registran en auditoría.')
+                ->icon('heroicon-o-flag')
+                ->columnSpanFull()
+                ->columns(3)
+                ->schema([
+                    ToggleButtons::make('estado')
+                        ->label('Estado')
+                        ->options(VehicleStatus::class)
+                        ->default(VehicleStatus::Draft->value)
+                        ->inline()
+                        ->required()
+                        ->columnSpan(2),
+                    View::make('filament.forms.vehicle-photo-status')
+                        ->columnSpan(1),
+                ]),
+
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
@@ -32,11 +52,8 @@ class VehicleForm
                                 ->regex('/^[A-Z]{3}-?\d{2,3}[A-Z]?$/i')
                                 ->dehydrateStateUsing(fn (?string $state) => $state ? strtoupper($state) : $state)
                                 ->live(onBlur: true)
-                                ->placeholder('ABC123 o ABC-123'),
-                            Select::make('estado')
-                                ->options(VehicleStatus::class)
-                                ->default(VehicleStatus::Draft->value)
-                                ->required(),
+                                ->placeholder('ABC123 o ABC-123')
+                                ->columnSpanFull(),
                             TextInput::make('marca')->maxLength(255),
                             TextInput::make('linea')->label('Línea')->maxLength(100),
                             TextInput::make('modelo')->maxLength(255)->helperText('Modelo comercial (texto)'),
