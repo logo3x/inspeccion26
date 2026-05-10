@@ -33,6 +33,16 @@ class OwnerResource extends Resource
         return ['full_name', 'document_number'];
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        return number_format(static::getModel()::query()->count());
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'gray';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return OwnerForm::configure($schema);

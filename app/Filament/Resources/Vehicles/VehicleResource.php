@@ -33,6 +33,16 @@ class VehicleResource extends Resource
         return ['placa', 'marca', 'modelo', 'vin'];
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        return number_format(static::getModel()::query()->count());
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'primary';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return VehicleForm::configure($schema);
