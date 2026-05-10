@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Vehicles\Tables;
 
+use App\Domain\InspectionSheets\Actions\GenerateSheetAction;
 use App\Domain\Vehicles\Enums\VehicleStatus;
 use App\Models\Vehicle;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -139,6 +141,16 @@ class VehiclesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                Action::make('downloadSheet')
+                    ->label('Ficha')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->action(function (Vehicle $record, GenerateSheetAction $action) {
+                        $path = $action($record);
+
+                        return response()->download($path, $action->suggestedDownloadName($record))
+                            ->deleteFileAfterSend(false);
+                    }),
                 EditAction::make(),
             ])
             ->toolbarActions([
