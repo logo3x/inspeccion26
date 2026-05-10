@@ -15,14 +15,27 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[Fillable([
+    'inventario_dtb',
     'placa',
     'marca',
     'modelo',
+    'linea',
     'year',
     'color',
     'tipo',
     'vin',
     'engine_number',
+    'cilindraje',
+    'organismo_transito',
+    'peso_bruto',
+    'peso_neto',
+    'ubicacion_fisica',
+    'servicio',
+    'tiempo_inmovilizacion_dias',
+    'causal_inmovilizacion',
+    'fecha_ingreso',
+    'fecha_notificacion',
+    'resolucion',
     'estado',
     'observaciones',
     'owner_id',
@@ -43,7 +56,11 @@ class Vehicle extends Model implements HasMedia
         return [
             'estado' => VehicleStatus::class,
             'year' => 'integer',
+            'cilindraje' => 'integer',
+            'tiempo_inmovilizacion_dias' => 'integer',
             'completion_percentage' => 'integer',
+            'fecha_ingreso' => 'date',
+            'fecha_notificacion' => 'date',
         ];
     }
 

@@ -4,13 +4,14 @@ namespace App\Filament\Resources\Vehicles\Schemas;
 
 use App\Domain\Vehicles\Enums\VehicleStatus;
 use App\Models\Vehicle;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\SpatieLaravelMediaLibraryPlugin\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class VehicleForm
 {
@@ -37,32 +38,41 @@ class VehicleForm
                                 ->default(VehicleStatus::Draft->value)
                                 ->required(),
                             TextInput::make('marca')->maxLength(255),
-                            TextInput::make('modelo')->maxLength(255),
+                            TextInput::make('linea')->label('Línea')->maxLength(100),
+                            TextInput::make('modelo')->maxLength(255)->helperText('Modelo comercial (texto)'),
                             TextInput::make('year')
-                                ->label('Año')
+                                ->label('Año modelo')
                                 ->numeric()
                                 ->minValue(1900)
                                 ->maxValue((int) date('Y') + 1),
                             TextInput::make('color')->maxLength(50),
                             Select::make('tipo')
+                                ->label('Clase')
                                 ->options([
-                                    'Automóvil' => 'Automóvil',
-                                    'Camioneta' => 'Camioneta',
-                                    'Motocicleta' => 'Motocicleta',
-                                    'Camión' => 'Camión',
-                                    'Bus' => 'Bus',
-                                    'Otro' => 'Otro',
+                                    'AUTOMOVIL' => 'Automóvil',
+                                    'CAMIONETA' => 'Camioneta',
+                                    'MOTOCICLETA' => 'Motocicleta',
+                                    'CAMION' => 'Camión',
+                                    'BUS' => 'Bus',
+                                    'BUSETA' => 'Buseta',
+                                    'CUATRIMOTO' => 'Cuatrimoto',
+                                    'OTRO' => 'Otro',
                                 ])
                                 ->searchable(),
+                            TextInput::make('inventario_dtb')
+                                ->label('# Inventario DTB')
+                                ->numeric(),
                             Select::make('owner_id')
                                 ->label('Propietario')
                                 ->relationship('owner', 'full_name')
                                 ->searchable(['full_name', 'document_number'])
                                 ->preload()
+                                ->columnSpanFull()
                                 ->createOptionForm([
                                     Select::make('document_type')
                                         ->options(['CC' => 'CC', 'CE' => 'CE', 'NIT' => 'NIT', 'Pasaporte' => 'Pasaporte'])
-                                        ->required(),
+                                        ->required()
+                                        ->default('CC'),
                                     TextInput::make('document_number')->required()->maxLength(50),
                                     TextInput::make('full_name')->required()->maxLength(255),
                                     TextInput::make('phone')->tel()->maxLength(50),
@@ -75,12 +85,54 @@ class VehicleForm
                         ->icon('heroicon-o-cog-6-tooth')
                         ->columns(2)
                         ->schema([
-                            TextInput::make('vin')
-                                ->label('VIN / Chasis')
-                                ->maxLength(50),
-                            TextInput::make('engine_number')
-                                ->label('Número de motor')
-                                ->maxLength(50),
+                            TextInput::make('vin')->label('VIN / Chasis')->maxLength(50),
+                            TextInput::make('engine_number')->label('Número de motor')->maxLength(50),
+                            TextInput::make('cilindraje')
+                                ->numeric()
+                                ->suffix('cm³')
+                                ->minValue(0)
+                                ->maxValue(20000),
+                            Select::make('servicio')
+                                ->options([
+                                    'PARTICULAR' => 'Particular',
+                                    'PUBLICO' => 'Público',
+                                    'OFICIAL' => 'Oficial',
+                                ]),
+                            TextInput::make('peso_bruto')->maxLength(30)->placeholder('p.ej. 110KG'),
+                            TextInput::make('peso_neto')->maxLength(30)->placeholder('p.ej. 75KG'),
+                        ]),
+
+                    Tab::make('Inmovilización')
+                        ->icon('heroicon-o-no-symbol')
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('organismo_transito')
+                                ->label('Organismo de tránsito')
+                                ->maxLength(150)
+                                ->columnSpanFull(),
+                            TextInput::make('ubicacion_fisica')
+                                ->label('Ubicación física')
+                                ->maxLength(150)
+                                ->columnSpanFull(),
+                            TextInput::make('causal_inmovilizacion')
+                                ->label('Causal')
+                                ->maxLength(100),
+                            TextInput::make('tiempo_inmovilizacion_dias')
+                                ->label('Tiempo (días)')
+                                ->numeric()
+                                ->suffix('días'),
+                            DatePicker::make('fecha_ingreso')
+                                ->label('Fecha de ingreso')
+                                ->native(false)
+                                ->displayFormat('d/m/Y'),
+                            DatePicker::make('fecha_notificacion')
+                                ->label('Fecha de notificación')
+                                ->native(false)
+                                ->displayFormat('d/m/Y'),
+                            TextInput::make('resolucion')
+                                ->label('Resolución')
+                                ->maxLength(100)
+                                ->columnSpanFull(),
                         ]),
 
                     Tab::make('Fotografías')
