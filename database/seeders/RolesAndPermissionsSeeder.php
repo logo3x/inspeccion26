@@ -15,29 +15,45 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $allPermissions = Permission::query()->pluck('name')->all();
 
-        $vehicleRead = ['View:Vehicle', 'ViewAny:Vehicle'];
-        $vehicleWrite = ['Create:Vehicle', 'Update:Vehicle'];
+        // Helpers para construir conjuntos por verbo
+        $viewOf = fn (string $resource) => ["View:{$resource}", "ViewAny:{$resource}"];
+        $writeOf = fn (string $resource) => ["Create:{$resource}", "Update:{$resource}"];
 
-        $ownerRead = ['View:Owner', 'ViewAny:Owner'];
-        $ownerWrite = ['Create:Owner', 'Update:Owner'];
+        $vehicleRead = $viewOf('Vehicle');
+        $vehicleWrite = $writeOf('Vehicle');
+        $ownerRead = $viewOf('Owner');
+        $ownerWrite = $writeOf('Owner');
+        $importRead = $viewOf('ImportBatch');
+        $importWrite = ['Create:ImportBatch'];
+        $bulkExportRead = $viewOf('BulkSheetExport');
+        $bulkExportWrite = ['Create:BulkSheetExport'];
+        $activityRead = $viewOf('Activity');
 
+        // 1. Administrador — todo
         $this->ensureRole('Administrador', $allPermissions);
 
+        // 2. Operador — CRUD operativo de vehículos, propietarios, imports y exports
         $this->ensureRole('Operador', array_merge(
-            $vehicleRead,
-            $vehicleWrite,
-            $ownerRead,
-            $ownerWrite,
+            $vehicleRead, $vehicleWrite,
+            $ownerRead, $ownerWrite,
+            $importRead, $importWrite,
+            $bulkExportRead, $bulkExportWrite,
         ));
 
+        // 3. Visualizador — solo lectura, NUNCA cambia datos
         $this->ensureRole('Visualizador', array_merge(
             $vehicleRead,
             $ownerRead,
+            $importRead,
+            $bulkExportRead,
+            $activityRead,
         ));
 
+        // 4. Descarga — lectura + generar exportaciones masivas (Word/ZIP)
         $this->ensureRole('Descarga', array_merge(
             $vehicleRead,
             $ownerRead,
+            $bulkExportRead, $bulkExportWrite,
         ));
     }
 
@@ -47,6 +63,8 @@ class RolesAndPermissionsSeeder extends Seeder
     protected function ensureRole(string $name, array $permissions): void
     {
         $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
-        $role->syncPermissions($permissions);
+        // Intersectar para evitar errores si algún permiso aún no se generó
+        $existing = Permission::query()->whereIn('name', $permissions)->pluck('name')->all();
+        $role->syncPermissions($existing);
     }
 }
