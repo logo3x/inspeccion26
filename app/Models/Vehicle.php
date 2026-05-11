@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\InspectionSheets\Support\NumberToSpanishWords;
 use App\Domain\Vehicles\Enums\VehicleStatus;
 use App\Observers\VehicleObserver;
 use Database\Factories\VehicleFactory;
@@ -21,6 +22,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 #[ObservedBy([VehicleObserver::class])]
 #[Fillable([
     'inventario_dtb',
+    'ficha_numero',
     'placa',
     'marca',
     'modelo',
@@ -40,6 +42,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'causal_inmovilizacion',
     'fecha_ingreso',
     'fecha_notificacion',
+    'fecha_inspeccion',
+    'aviso_prensa',
+    'condicion_bien',
+    'tiempo_vida_util_anios',
+    'estado_fisico',
+    'valor_economico',
     'resolucion',
     'estado',
     'observaciones',
@@ -63,10 +71,18 @@ class Vehicle extends Model implements HasMedia
             'year' => 'integer',
             'cilindraje' => 'integer',
             'tiempo_inmovilizacion_dias' => 'integer',
+            'tiempo_vida_util_anios' => 'integer',
             'completion_percentage' => 'integer',
             'fecha_ingreso' => 'date',
             'fecha_notificacion' => 'date',
+            'fecha_inspeccion' => 'date',
+            'valor_economico' => 'decimal:2',
         ];
+    }
+
+    public function valorEconomicoEnLetras(): string
+    {
+        return NumberToSpanishWords::toCurrencyPesos($this->valor_economico);
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Vehicles\Schemas;
 
+use App\Domain\InspectionSheets\Support\NumberToSpanishWords;
 use App\Domain\Vehicles\Enums\VehicleStatus;
 use App\Models\Vehicle;
 use Filament\Forms\Components\DatePicker;
@@ -75,10 +76,18 @@ class VehicleForm
                                     'CUATRIMOTO' => 'Cuatrimoto',
                                     'OTRO' => 'Otro',
                                 ])
+                                ->default(config('inspeccion.defaults.tipo'))
                                 ->searchable(),
                             TextInput::make('inventario_dtb')
                                 ->label('# Inventario DTB')
                                 ->numeric(),
+                            TextInput::make('ficha_numero')
+                                ->label('# Ficha técnica')
+                                ->maxLength(20)
+                                ->disabled()
+                                ->dehydrated()
+                                ->placeholder('Se asignará automáticamente al guardar')
+                                ->helperText('Secuencia anual auto-generada al crear.'),
                             Select::make('owner_id')
                                 ->label('Propietario')
                                 ->relationship('owner', 'full_name')
@@ -114,9 +123,16 @@ class VehicleForm
                                     'PARTICULAR' => 'Particular',
                                     'PUBLICO' => 'Público',
                                     'OFICIAL' => 'Oficial',
-                                ]),
-                            TextInput::make('peso_bruto')->maxLength(30)->placeholder('p.ej. 110KG'),
-                            TextInput::make('peso_neto')->maxLength(30)->placeholder('p.ej. 75KG'),
+                                ])
+                                ->default(config('inspeccion.defaults.servicio')),
+                            TextInput::make('peso_bruto')
+                                ->maxLength(30)
+                                ->default(config('inspeccion.defaults.peso_bruto'))
+                                ->placeholder('p.ej. 110KG'),
+                            TextInput::make('peso_neto')
+                                ->maxLength(30)
+                                ->default(config('inspeccion.defaults.peso_neto'))
+                                ->placeholder('p.ej. 75KG'),
                         ]),
 
                     Tab::make('Inmovilización')
@@ -125,10 +141,12 @@ class VehicleForm
                         ->schema([
                             TextInput::make('organismo_transito')
                                 ->label('Organismo de tránsito')
+                                ->default(config('inspeccion.defaults.organismo_transito'))
                                 ->maxLength(150)
                                 ->columnSpanFull(),
                             TextInput::make('ubicacion_fisica')
                                 ->label('Ubicación física')
+                                ->default(config('inspeccion.defaults.ubicacion_fisica'))
                                 ->maxLength(150)
                                 ->columnSpanFull(),
                             TextInput::make('causal_inmovilizacion')
@@ -149,6 +167,57 @@ class VehicleForm
                             TextInput::make('resolucion')
                                 ->label('Resolución')
                                 ->maxLength(100)
+                                ->columnSpanFull(),
+                        ]),
+
+                    Tab::make('Avalúo y abandono')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('aviso_prensa')
+                                ->label('Aviso de prensa')
+                                ->maxLength(150)
+                                ->placeholder('p.ej. 02 DE JUNIO DE 2024 - EL ESPECTADOR')
+                                ->columnSpanFull(),
+                            DatePicker::make('fecha_inspeccion')
+                                ->label('Fecha de inspección al patio')
+                                ->native(false)
+                                ->displayFormat('d/m/Y'),
+                            Select::make('condicion_bien')
+                                ->label('Condición del bien')
+                                ->options([
+                                    'BUENO' => 'Bueno',
+                                    'REGULAR' => 'Regular',
+                                    'MALO' => 'Malo',
+                                    'CHATARRA' => 'Chatarra',
+                                    'OBSOLETO' => 'Obsoleto',
+                                ])
+                                ->searchable(),
+                            TextInput::make('tiempo_vida_util_anios')
+                                ->label('Tiempo vida útil aprox.')
+                                ->numeric()
+                                ->suffix('años')
+                                ->minValue(0)
+                                ->maxValue(99),
+                            TextInput::make('valor_economico')
+                                ->label('Valor económico actual')
+                                ->numeric()
+                                ->prefix('$')
+                                ->suffix('COP')
+                                ->minValue(0)
+                                ->live(onBlur: true)
+                                ->helperText(function ($state) {
+                                    if (blank($state)) {
+                                        return null;
+                                    }
+                                    $amount = (int) (float) $state;
+
+                                    return 'SON: '.NumberToSpanishWords::toCurrencyPesos($amount);
+                                }),
+                            Textarea::make('estado_fisico')
+                                ->label('Estado físico general del bien')
+                                ->rows(3)
+                                ->placeholder('p.ej. CONDICION MALO Y OBSOLETO - BIEN VEHICULAR EN DETRIMENTO')
                                 ->columnSpanFull(),
                         ]),
 

@@ -77,6 +77,8 @@ class VehicleExcelMapper
             ];
         }
 
+        $defaults = (array) config('inspeccion.defaults', []);
+
         $vehicle = [
             'inventario_dtb' => $this->intOrNull($get('inventario_dtb')),
             'placa' => $placa,
@@ -84,15 +86,15 @@ class VehicleExcelMapper
             'linea' => $this->upperOrNull($get('linea')),
             'year' => $this->yearOrNull($get('year')),
             'color' => $this->upperOrNull($get('color')),
-            'tipo' => $this->normalizeTipo($get('tipo')),
+            'tipo' => $this->normalizeTipo($get('tipo')) ?? ($defaults['tipo'] ?? null),
             'vin' => $this->upperOrNull($get('vin')),
             'engine_number' => $this->upperOrNull($get('engine_number')),
             'cilindraje' => $this->intOrNull($get('cilindraje')),
-            'organismo_transito' => $this->trimOrNull($get('organismo_transito')),
-            'peso_bruto' => $this->trimOrNull($get('peso_bruto')),
-            'peso_neto' => $this->trimOrNull($get('peso_neto')),
-            'ubicacion_fisica' => $this->trimOrNull($get('ubicacion_fisica')),
-            'servicio' => $this->normalizeServicio($get('servicio')),
+            'organismo_transito' => $this->trimOrNull($get('organismo_transito')) ?? ($defaults['organismo_transito'] ?? null),
+            'peso_bruto' => $this->trimOrNull($get('peso_bruto')) ?? ($defaults['peso_bruto'] ?? null),
+            'peso_neto' => $this->trimOrNull($get('peso_neto')) ?? ($defaults['peso_neto'] ?? null),
+            'ubicacion_fisica' => $this->trimOrNull($get('ubicacion_fisica')) ?? ($defaults['ubicacion_fisica'] ?? null),
+            'servicio' => $this->normalizeServicio($get('servicio')) ?? ($defaults['servicio'] ?? null),
             'tiempo_inmovilizacion_dias' => $this->intOrNull($get('tiempo_inmovilizacion_dias')),
             'causal_inmovilizacion' => $this->trimOrNull($get('causal_inmovilizacion')),
             'fecha_ingreso' => $this->excelDateOrNull($get('fecha_ingreso')),
