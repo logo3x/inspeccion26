@@ -26,8 +26,14 @@ if (! hash_equals(SETUP_TOKEN, $providedToken)) {
     exit;
 }
 
-require __DIR__.'/../vendor/autoload.php';
-$app = require __DIR__.'/../bootstrap/app.php';
+$autoloadPath = is_file(__DIR__.'/../vendor/autoload.php')
+    ? __DIR__.'/../vendor/autoload.php'
+    : __DIR__.'/vendor/autoload.php';
+$bootstrapPath = is_file(__DIR__.'/../bootstrap/app.php')
+    ? __DIR__.'/../bootstrap/app.php'
+    : __DIR__.'/bootstrap/app.php';
+require $autoloadPath;
+$app = require $bootstrapPath;
 
 /** @var Kernel $kernel */
 $kernel = $app->make(Kernel::class);
