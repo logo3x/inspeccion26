@@ -43,6 +43,7 @@ $actions = [
     'optimize-clear' => ['Limpiar TODOS los caches', 'optimize:clear'],
     'migrate' => ['Correr migraciones pendientes', 'migrate', ['--force' => true]],
     'migrate-fresh' => ['DROP ALL + remigrar (DESTRUCTIVO)', 'migrate:fresh', ['--force' => true]],
+    'reset-vehicle-data' => ['Vaciar vehículos, propietarios, media, imports (DESTRUCTIVO, mantiene users + roles)', 'inspeccion:reset-vehicle-data', ['--force' => true]],
     'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true]],
     'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin']],
     'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]],
@@ -130,7 +131,7 @@ $lastAction = $action;
             <form method="post">
                 <input type="hidden" name="token" value="<?= htmlspecialchars($providedToken) ?>">
                 <input type="hidden" name="action" value="<?= $key ?>">
-                <button type="submit" class="<?= $key === 'migrate-fresh' ? 'danger' : ($key === 'migrate' || $key === 'seed-admin' ? 'primary' : '') ?>">
+                <button type="submit" class="<?= ($key === 'migrate-fresh' || $key === 'reset-vehicle-data') ? 'danger' : ($key === 'migrate' || $key === 'seed-admin' ? 'primary' : '') ?>">
                     <strong><?= htmlspecialchars($label) ?></strong>
                     <?php if ($cmd) { ?><br><span class="muted"><?= htmlspecialchars($cmd) ?></span><?php } ?>
                 </button>
