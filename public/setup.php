@@ -9,12 +9,10 @@ use Illuminate\Support\Facades\DB;
  *
  * SECURITY:
  *  - Protected by a static token. Change SETUP_TOKEN below and don't commit it.
- *  - Auto-disabled when APP_ENV=production AND APP_DEBUG=false UNLESS the token is provided.
  *  - DELETE THIS FILE once the deployment is stable.
  *
  * USAGE:
  *  https://your-domain.com/setup.php?token=YOUR_TOKEN
- *  Then click the buttons to run the desired commands.
  */
 const SETUP_TOKEN = 'oySSZ--pXhRw3rB0UR89FiUxIv-9El9n';
 
@@ -38,32 +36,73 @@ $app = require $bootstrapPath;
 /** @var Kernel $kernel */
 $kernel = $app->make(Kernel::class);
 
+// label, command (null for env-check), args, style (danger|primary|warn|normal)
 $actions = [
-    'env-check' => ['Verificar .env y conexión DB', null],
-    'storage-link' => ['Crear symlink storage', 'storage:link'],
-    'key-generate' => ['Generar APP_KEY (si falta)', 'key:generate', ['--force' => true]],
-    'config-clear' => ['Limpiar cache config', 'config:clear'],
-    'cache-clear' => ['Limpiar cache aplicacion', 'cache:clear'],
-    'view-clear' => ['Limpiar cache views', 'view:clear'],
-    'route-clear' => ['Limpiar cache rutas', 'route:clear'],
-    'optimize-clear' => ['Limpiar TODOS los caches', 'optimize:clear'],
-    'migrate' => ['Correr migraciones pendientes', 'migrate', ['--force' => true]],
-    'migrate-fresh' => ['DROP ALL + remigrar (DESTRUCTIVO)', 'migrate:fresh', ['--force' => true]],
-    'reset-vehicle-data' => ['Vaciar vehículos, propietarios, media, imports (DESTRUCTIVO, mantiene users + roles)', 'inspeccion:reset-vehicle-data', ['--force' => true]],
-    'imports-process-pending' => ['Procesar filas Pending del último import (chunk=500)', 'imports:process-pending', ['--chunk' => 500]],
-    'reassociate-photos' => ['Re-asociar fotos a vehículos (lee storage/app/private/photos-import/, conserva originales)', 'vehicles:import-photos', ['--keep' => true]],
-    'reassociate-photos-dry' => ['(Dry-run) Simular re-asociación de fotos sin tocar nada', 'vehicles:import-photos', ['--keep' => true, '--dry' => true]],
-    'reassociate-orphans' => ['Re-asociar fotos huérfanas (lee photos-import/orphans/, conserva originales)', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true]],
-    'reassociate-orphans-dry' => ['(Dry-run) Simular re-asociación de fotos huérfanas', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true, '--dry' => true]],
-    'reassociate-spatie' => ['Re-asociar fotos Spatie (storage/app/public/, recursivo, conserva originales)', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true]],
-    'reassociate-spatie-dry' => ['(Dry-run) Simular re-asociación Spatie storage/app/public/', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true, '--dry' => true]],
-    'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true]],
-    'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin']],
-    'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]],
-    'filament-cache' => ['Cachear componentes Filament', 'filament:cache-components'],
-    'config-cache' => ['Cachear configuración (producción)', 'config:cache'],
-    'route-cache' => ['Cachear rutas (producción)', 'route:cache'],
-    'view-cache' => ['Compilar views (producción)', 'view:cache'],
+    // Diagnóstico
+    'env-check' => ['Verificar .env y conexión DB', null, [], 'primary'],
+
+    // Datos vehículos (flujo de re-import)
+    'reset-vehicle-data' => ['🗑 Vaciar vehículos / propietarios / media / imports', 'inspeccion:reset-vehicle-data', ['--force' => true], 'danger'],
+    'imports-process-pending' => ['▶ Procesar filas Pending del último import', 'imports:process-pending', ['--chunk' => 500], 'primary'],
+    'reassociate-spatie-dry' => ['🔍 (Dry-run) Re-asociar fotos Spatie storage/app/public/', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true, '--dry' => true], 'normal'],
+    'reassociate-spatie' => ['🖼 Re-asociar fotos Spatie (recursivo, conserva originales)', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true], 'primary'],
+
+    // Caches — limpieza
+    'optimize-clear' => ['Limpiar TODOS los caches', 'optimize:clear', [], 'normal'],
+    'config-clear' => ['Limpiar cache config', 'config:clear', [], 'normal'],
+    'cache-clear' => ['Limpiar cache aplicación', 'cache:clear', [], 'normal'],
+    'view-clear' => ['Limpiar cache views', 'view:clear', [], 'normal'],
+    'route-clear' => ['Limpiar cache rutas', 'route:clear', [], 'normal'],
+
+    // Caches — producción
+    'config-cache' => ['Cachear configuración (producción)', 'config:cache', [], 'normal'],
+    'route-cache' => ['Cachear rutas (producción)', 'route:cache', [], 'normal'],
+    'view-cache' => ['Compilar views (producción)', 'view:cache', [], 'normal'],
+    'filament-cache' => ['Cachear componentes Filament', 'filament:cache-components', [], 'normal'],
+
+    // Configuración inicial
+    'key-generate' => ['Generar APP_KEY (si falta)', 'key:generate', ['--force' => true], 'normal'],
+    'storage-link' => ['Crear symlink storage', 'storage:link', [], 'normal'],
+    'migrate' => ['Correr migraciones pendientes', 'migrate', ['--force' => true], 'primary'],
+    'migrate-fresh' => ['🗑 DROP ALL + remigrar (DESTRUCTIVO)', 'migrate:fresh', ['--force' => true], 'danger'],
+    'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true], 'normal'],
+    'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin'], 'normal'],
+    'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true], 'normal'],
+
+    // Fotos avanzadas (otros paths)
+    'reassociate-photos-dry' => ['🔍 (Dry-run) Fotos en photos-import/ (root)', 'vehicles:import-photos', ['--keep' => true, '--dry' => true], 'normal'],
+    'reassociate-photos' => ['🖼 Fotos en photos-import/ (root, conserva originales)', 'vehicles:import-photos', ['--keep' => true], 'normal'],
+    'reassociate-orphans-dry' => ['🔍 (Dry-run) Fotos en photos-import/orphans/', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true, '--dry' => true], 'normal'],
+    'reassociate-orphans' => ['🖼 Fotos en photos-import/orphans/ (conserva originales)', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true], 'normal'],
+];
+
+$sections = [
+    'Diagnóstico' => [
+        'open' => true,
+        'keys' => ['env-check'],
+    ],
+    'Re-importar datos de vehículos' => [
+        'open' => true,
+        'desc' => '1) Vaciar → 2) Subir Excel en Filament → 3) Procesar Pending → 4) Dry-run fotos → 5) Re-asociar fotos.',
+        'keys' => ['reset-vehicle-data', 'imports-process-pending', 'reassociate-spatie-dry', 'reassociate-spatie'],
+    ],
+    'Caches — limpiar (en cambios)' => [
+        'open' => false,
+        'keys' => ['optimize-clear', 'config-clear', 'cache-clear', 'view-clear', 'route-clear'],
+    ],
+    'Caches — cachear para producción' => [
+        'open' => false,
+        'keys' => ['config-cache', 'route-cache', 'view-cache', 'filament-cache'],
+    ],
+    'Configuración inicial (primera vez)' => [
+        'open' => false,
+        'keys' => ['key-generate', 'storage-link', 'migrate', 'migrate-fresh', 'seed-admin', 'shield-generate', 'seed-roles'],
+    ],
+    'Fotos — otros orígenes (avanzado)' => [
+        'open' => false,
+        'desc' => 'Solo si necesitas leer de carpetas alternativas distintas a storage/app/public/.',
+        'keys' => ['reassociate-photos-dry', 'reassociate-photos', 'reassociate-orphans-dry', 'reassociate-orphans'],
+    ],
 ];
 
 $output = '';
@@ -99,6 +138,26 @@ if ($action !== '' && isset($actions[$action])) {
 }
 
 $lastAction = $action;
+
+function setup_render_button(string $key, array $action, string $providedToken): string
+{
+    [$label, $cmd] = $action;
+    $style = $action[3] ?? 'normal';
+    $tokenSafe = htmlspecialchars($providedToken, ENT_QUOTES);
+    $labelSafe = htmlspecialchars($label);
+    $cmdSafe = $cmd ? htmlspecialchars($cmd) : '';
+
+    return <<<HTML
+<form method="post">
+    <input type="hidden" name="token" value="{$tokenSafe}">
+    <input type="hidden" name="action" value="{$key}">
+    <button type="submit" class="{$style}">
+        <strong>{$labelSafe}</strong>
+        <span class="muted">{$cmdSafe}</span>
+    </button>
+</form>
+HTML;
+}
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
@@ -106,51 +165,59 @@ $lastAction = $action;
     <title>Setup · Inspección26</title>
     <style>
         :root { color-scheme: light dark; }
-        body { font-family: system-ui, -apple-system, sans-serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; }
-        h1 { margin: 0 0 .25rem; }
-        .muted { color: #888; font-size: .9rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .5rem; margin: 1rem 0; }
-        button { padding: .65rem .75rem; border: 1px solid #d4d4d8; background: #fafafa; color: #111; border-radius: 8px; cursor: pointer; text-align: left; font-size: .85rem; }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.4; }
+        h1 { margin: 0 0 .25rem; font-size: 1.4rem; }
+        h2 { margin: 1rem 0 .25rem; font-size: 1rem; }
+        .muted { color: #888; font-size: .8rem; display: block; margin-top: .15rem; }
+        details { border: 1px solid #e4e4e7; border-radius: 10px; margin: .5rem 0; padding: 0 .75rem; background: #fafafa; }
+        details[open] { background: #fff; }
+        summary { padding: .65rem .25rem; cursor: pointer; font-weight: 600; font-size: .95rem; user-select: none; }
+        summary::marker { color: #888; }
+        .desc { color: #666; font-size: .8rem; margin: -.25rem 0 .5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: .4rem; padding-bottom: .75rem; }
+        form { margin: 0; }
+        button { width: 100%; padding: .6rem .75rem; border: 1px solid #d4d4d8; background: #fff; color: #111; border-radius: 8px; cursor: pointer; text-align: left; font-size: .85rem; line-height: 1.25; }
         button:hover { background: #f4f4f5; }
-        button.danger { border-color: #ef4444; color: #b91c1c; }
+        button.danger { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+        button.danger:hover { background: #fee2e2; }
         button.primary { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
-        pre { background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow: auto; max-height: 500px; font-size: .8rem; }
+        button.primary:hover { background: #dbeafe; }
+        pre { background: #0f172a; color: #e2e8f0; padding: .9rem; border-radius: 8px; overflow: auto; max-height: 60vh; font-size: .8rem; }
         .err { background: #450a0a; color: #fecaca; }
         .ok { background: #052e16; color: #bbf7d0; }
-        .ribbon { padding: .75rem; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 8px; margin-bottom: 1rem; font-size: .9rem; }
-        a { color: #2563eb; }
+        .ribbon { padding: .5rem .75rem; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 8px; margin-bottom: 1rem; font-size: .85rem; }
         @media (prefers-color-scheme: dark) {
             body { background: #0a0a0a; color: #fafafa; }
+            details { background: #18181b; border-color: #3f3f46; }
+            details[open] { background: #111114; }
+            .desc, summary::marker { color: #a1a1aa; }
             button { background: #18181b; color: #fafafa; border-color: #3f3f46; }
             button:hover { background: #27272a; }
+            button.danger { background: #3f1818; color: #fecaca; }
+            button.primary { background: #142353; color: #93c5fd; }
             .ribbon { background: #422006; color: #fde68a; border-color: #92400e; }
         }
     </style>
 </head>
 <body>
     <h1>Setup · Inspección26</h1>
-    <p class="muted">Herramienta temporal de despliegue. <strong>Elimina este archivo</strong> (<code>public/setup.php</code>) cuando termines.</p>
+    <div class="ribbon">🔒 Acceso autorizado con token. <strong>Borra <code>public/setup.php</code></strong> via FTP cuando termines.</div>
 
-    <div class="ribbon">
-        🔒 Acceso autorizado con token. Borra este archivo después de configurar producción.
-        Si necesitas re-ejecutar comandos, vuelve a subir el archivo, ajusta <code>SETUP_TOKEN</code> en código y úsalo.
-    </div>
-
-    <h2>Acciones</h2>
-    <p class="muted">Cada botón ejecuta un <code>php artisan ...</code> con el token actual.</p>
-
-    <div class="grid">
-        <?php foreach ($actions as $key => [$label, $cmd]) { ?>
-            <form method="post">
-                <input type="hidden" name="token" value="<?= htmlspecialchars($providedToken) ?>">
-                <input type="hidden" name="action" value="<?= $key ?>">
-                <button type="submit" class="<?= ($key === 'migrate-fresh' || $key === 'reset-vehicle-data') ? 'danger' : ($key === 'migrate' || $key === 'seed-admin' ? 'primary' : '') ?>">
-                    <strong><?= htmlspecialchars($label) ?></strong>
-                    <?php if ($cmd) { ?><br><span class="muted"><?= htmlspecialchars($cmd) ?></span><?php } ?>
-                </button>
-            </form>
-        <?php } ?>
-    </div>
+    <?php foreach ($sections as $title => $section) { ?>
+        <details<?= !empty($section['open']) ? ' open' : '' ?>>
+            <summary><?= htmlspecialchars($title) ?></summary>
+            <?php if (!empty($section['desc'])) { ?>
+                <p class="desc"><?= htmlspecialchars($section['desc']) ?></p>
+            <?php } ?>
+            <div class="grid">
+                <?php foreach ($section['keys'] as $key) {
+                    if (! isset($actions[$key])) { continue; }
+                    echo setup_render_button($key, $actions[$key], $providedToken);
+                } ?>
+            </div>
+        </details>
+    <?php } ?>
 
     <?php if ($lastAction !== '') { ?>
         <h2>Resultado: <code><?= htmlspecialchars($actions[$lastAction][0] ?? $lastAction) ?></code></h2>
@@ -160,17 +227,5 @@ $lastAction = $action;
             <pre class="ok"><?= htmlspecialchars($output) ?></pre>
         <?php } ?>
     <?php } ?>
-
-    <h2>Recomendaciones</h2>
-    <ol class="muted">
-        <li>Primero: <strong>Verificar .env y conexión DB</strong> — confirma que APP_KEY y DB están bien.</li>
-        <li>Si <code>APP_KEY</code> falta: <strong>Generar APP_KEY</strong>.</li>
-        <li>Correr <strong>Migraciones</strong>.</li>
-        <li>Generar permisos Shield (<strong>Generar permisos Shield</strong>).</li>
-        <li>Sembrar roles (<strong>Sembrar roles</strong>) y crear admin (<strong>Crear usuario admin</strong>).</li>
-        <li>Crear <strong>symlink storage</strong>.</li>
-        <li>(Producción) Cachear config, rutas, views, filament.</li>
-        <li><strong>Borra <code>public/setup.php</code></strong> via FTP.</li>
-    </ol>
 </body>
 </html>
