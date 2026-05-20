@@ -21,8 +21,8 @@ class VehicleExcelMapper
 {
     /** @var array<string, string> header label → column letter */
     public const DEFAULT_HEADER_MAP = [
-        'inventario_dtb' => 'A',          // #
-        'placa' => 'B',                    // PLACA VEHICULO
+        'inventario_dtb' => 'A',           // N°
+        'placa' => 'B',                    // PLACA VEHICULAR
         'owner_full_name' => 'C',          // NOMBRE PROPIETARIO
         'owner_document_number' => 'D',    // CEDULA
         'vin' => 'E',                      // NUMERO DE CHASIS
@@ -32,17 +32,15 @@ class VehicleExcelMapper
         'year' => 'I',                     // MODELO
         'color' => 'J',                    // COLOR
         'tipo' => 'K',                     // CLASE
-        'cilindraje' => 'L',
-        'organismo_transito' => 'M',
-        'peso_bruto' => 'N',
-        'peso_neto' => 'O',
-        'ubicacion_fisica' => 'P',
-        'servicio' => 'Q',
-        'tiempo_inmovilizacion_dias' => 'R',
-        'causal_inmovilizacion' => 'S',
-        'fecha_ingreso' => 'T',
-        'fecha_notificacion' => 'U',
-        'resolucion' => 'V',
+        'cilindraje' => 'L',               // CILINDRAJE
+        'organismo_transito' => 'M',       // ORGANISMO DE TRANSITO
+        'peso_bruto' => 'N',               // PESO BRUTO
+        'peso_neto' => 'O',                // PESO NETO
+        'ubicacion_fisica' => 'P',         // UBICACION FISICA
+        'servicio' => 'Q',                 // SERVICIO
+        'fecha_ingreso' => 'R',            // FECHA DE INGRESO
+        'fecha_notificacion' => 'S',       // FECHA DE NOTIFICACION
+        'resolucion' => 'T',               // RESOLUCION
     ];
 
     /** Header row in spreadsheet (1-indexed). */
@@ -95,8 +93,6 @@ class VehicleExcelMapper
             'peso_neto' => $this->trimOrNull($get('peso_neto')) ?? ($defaults['peso_neto'] ?? null),
             'ubicacion_fisica' => $this->trimOrNull($get('ubicacion_fisica')) ?? ($defaults['ubicacion_fisica'] ?? null),
             'servicio' => $this->normalizeServicio($get('servicio')) ?? ($defaults['servicio'] ?? null),
-            'tiempo_inmovilizacion_dias' => $this->intOrNull($get('tiempo_inmovilizacion_dias')),
-            'causal_inmovilizacion' => $this->trimOrNull($get('causal_inmovilizacion')),
             'fecha_ingreso' => $this->excelDateOrNull($get('fecha_ingreso')),
             'fecha_notificacion' => $this->excelDateOrNull($get('fecha_notificacion')),
             'resolucion' => $this->trimOrNull($get('resolucion')),

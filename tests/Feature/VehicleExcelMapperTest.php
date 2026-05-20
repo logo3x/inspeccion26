@@ -21,9 +21,9 @@ it('maps a complete row including dates and owner', function () {
         'O' => '75KG',
         'P' => 'DIR. TRANSITO BUCARAMANGA',
         'Q' => 'PARTICULAR',
-        'R' => 4826,
-        'S' => 'Comparendo',
-        'T' => 41309, // Excel serial = 2013-02-04
+        'R' => 41309, // Excel serial = 2013-02-04 (fecha_ingreso)
+        'S' => 41320, // fecha_notificacion
+        'T' => 'RES-001/2013', // resolucion
     ];
 
     $result = (new VehicleExcelMapper)->map($row);
