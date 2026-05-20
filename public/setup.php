@@ -53,6 +53,8 @@ $actions = [
     'imports-process-pending' => ['Procesar filas Pending del último import (chunk=500)', 'imports:process-pending', ['--chunk' => 500]],
     'reassociate-photos' => ['Re-asociar fotos a vehículos (lee storage/app/private/photos-import/, conserva originales)', 'vehicles:import-photos', ['--keep' => true]],
     'reassociate-photos-dry' => ['(Dry-run) Simular re-asociación de fotos sin tocar nada', 'vehicles:import-photos', ['--keep' => true, '--dry' => true]],
+    'reassociate-orphans' => ['Re-asociar fotos huérfanas (lee photos-import/orphans/, conserva originales)', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true]],
+    'reassociate-orphans-dry' => ['(Dry-run) Simular re-asociación de fotos huérfanas', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true, '--dry' => true]],
     'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true]],
     'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin']],
     'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]],
