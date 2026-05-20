@@ -28,6 +28,10 @@ class StartImportBatchAction
 
     public function __invoke(ImportBatch $batch): void
     {
+        // Shared hosting (LiteSpeed) limita a 30s por request; el parseo + materialización
+        // de Excels grandes excede ese límite. Quitamos el tope mientras dura el job.
+        @set_time_limit(0);
+        @ini_set('max_execution_time', '0');
         @ini_set('memory_limit', '512M');
 
         $batch->forceFill([
@@ -58,6 +62,14 @@ class StartImportBatchAction
                 'finished_at' => now(),
             ])->save();
 
+            return;
+        }
+
+        // En shared hosting (QUEUE_CONNECTION=sync) Bus::batch ejecutaría TODOS los jobs
+        // dentro de esta request HTTP, lo que excede el max_execution_time del servidor.
+        // En ese caso dejamos las filas como Pending para que se procesen vía el
+        // comando `imports:process-pending` (botón en setup.php / cron).
+        if (config('queue.default') === 'sync') {
             return;
         }
 

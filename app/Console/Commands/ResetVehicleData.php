@@ -40,11 +40,13 @@ class ResetVehicleData extends Command
         $missing = [];
         $truncated = [];
 
-        DB::transaction(function () use (&$missing, &$truncated, $driver) {
-            if ($driver === 'mysql') {
-                DB::statement('SET FOREIGN_KEY_CHECKS=0');
-            }
+        // No envolvemos en DB::transaction() porque TRUNCATE provoca un commit
+        // implícito en MySQL y rompe la transacción exterior.
+        if ($driver === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        }
 
+        try {
             foreach ($this->tablesToTruncate as $table) {
                 if (! Schema::hasTable($table)) {
                     $missing[] = $table;
@@ -56,11 +58,11 @@ class ResetVehicleData extends Command
                 $truncated[] = $table;
                 $this->line(' • truncated: '.$table);
             }
-
+        } finally {
             if ($driver === 'mysql') {
                 DB::statement('SET FOREIGN_KEY_CHECKS=1');
             }
-        });
+        }
 
         $this->newLine();
         $this->info(sprintf('Listo. %d tablas vaciadas.', count($truncated)));

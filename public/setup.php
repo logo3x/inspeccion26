@@ -50,6 +50,7 @@ $actions = [
     'migrate' => ['Correr migraciones pendientes', 'migrate', ['--force' => true]],
     'migrate-fresh' => ['DROP ALL + remigrar (DESTRUCTIVO)', 'migrate:fresh', ['--force' => true]],
     'reset-vehicle-data' => ['Vaciar vehículos, propietarios, media, imports (DESTRUCTIVO, mantiene users + roles)', 'inspeccion:reset-vehicle-data', ['--force' => true]],
+    'imports-process-pending' => ['Procesar filas Pending del último import (chunk=500)', 'imports:process-pending', ['--chunk' => 500]],
     'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true]],
     'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin']],
     'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]],
