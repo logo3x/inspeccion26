@@ -55,6 +55,8 @@ $actions = [
     'reassociate-photos-dry' => ['(Dry-run) Simular re-asociación de fotos sin tocar nada', 'vehicles:import-photos', ['--keep' => true, '--dry' => true]],
     'reassociate-orphans' => ['Re-asociar fotos huérfanas (lee photos-import/orphans/, conserva originales)', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true]],
     'reassociate-orphans-dry' => ['(Dry-run) Simular re-asociación de fotos huérfanas', 'vehicles:import-photos', ['--path' => 'photos-import/orphans', '--keep' => true, '--dry' => true]],
+    'reassociate-spatie' => ['Re-asociar fotos Spatie (storage/app/public/, recursivo, conserva originales)', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true]],
+    'reassociate-spatie-dry' => ['(Dry-run) Simular re-asociación Spatie storage/app/public/', 'vehicles:import-photos', ['--disk' => 'public', '--recursive' => true, '--keep' => true, '--dry' => true]],
     'seed-admin' => ['Crear usuario admin@local.test', 'db:seed', ['--class' => 'AdminUserSeeder', '--force' => true]],
     'shield-generate' => ['Generar permisos Shield', 'shield:generate', ['--all' => true, '--panel' => 'admin']],
     'seed-roles' => ['Sembrar roles (Administrador, Operador, Visualizador, Descarga)', 'db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]],
