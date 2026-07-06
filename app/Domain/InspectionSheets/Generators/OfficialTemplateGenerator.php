@@ -88,7 +88,7 @@ class OfficialTemplateGenerator
 
         // Imágenes: fotos del vehículo (${foto_1}..${foto_2}) + improntas en página 2
         // El recuadro de fotos mide ~13 cm de ancho x ~9.6 cm de alto (7425x5463 twips).
-        // Cada una de las 2 fotos ocupa la mitad de esa altura, a todo lo ancho.
+        // Las 2 fotos van una al lado de la otra, aprovechando todo el alto del recuadro.
         $vars = $tp->getVariables();
         $photos = $vehicle->getMedia(Vehicle::PHOTOS_COLLECTION);
         foreach (range(1, Vehicle::MAX_PHOTOS) as $i) {
@@ -100,8 +100,8 @@ class OfficialTemplateGenerator
             if ($photo && is_file($photo->getPath())) {
                 $tp->setImageValue($placeholder, [
                     'path' => $photo->getPath(),
-                    'width' => 480,
-                    'height' => 175,
+                    'width' => 240,
+                    'height' => 340,
                     'ratio' => true,
                 ]);
             } else {
