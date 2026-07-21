@@ -62,8 +62,9 @@ class OfficialTemplateGenerator
             'owner_name' => $vehicle->owner?->full_name ?? '—',
             'owner_document' => $vehicle->owner?->document_number ?? '—',
 
-            // Aviso de prensa y resolución van vacíos en la ficha
-            'aviso_prensa' => '',
+            'aviso_prensa' => $vehicle->aviso_prensa ?? '',
+
+            // Resolución va vacía en la ficha
             'resolucion' => '',
 
             'condicion_bien' => $vehicle->condicion_bien ?? '—',
