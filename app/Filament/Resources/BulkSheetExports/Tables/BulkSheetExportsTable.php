@@ -51,7 +51,8 @@ class BulkSheetExportsTable
                     ->label('Descargar')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->visible(fn (BulkSheetExport $record) => $record->status === BulkSheetExportStatus::Completed)
+                    ->visible(fn (BulkSheetExport $record) => $record->status === BulkSheetExportStatus::Completed
+                        && (auth()->user()?->can('Download:Vehicle') ?? false))
                     ->action(fn (BulkSheetExport $record) => response()->download(
                         Storage::disk('local')->path($record->zip_path),
                         'fichas_'.($record->id).'_'.now()->format('Ymd').'.zip'

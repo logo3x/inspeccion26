@@ -8,6 +8,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class VehiclesStatsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 10;
+
     protected ?string $pollingInterval = '30s';
 
     protected function getStats(): array

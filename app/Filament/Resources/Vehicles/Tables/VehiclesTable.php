@@ -22,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class VehiclesTable
 {
@@ -29,14 +30,20 @@ class VehiclesTable
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->with(['owner', 'createdBy', 'media']))
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('inventario_dtb', 'asc')
             ->columns([
                 SpatieMediaLibraryImageColumn::make('photo')
                     ->label('')
                     ->collection(Vehicle::PHOTOS_COLLECTION)
-                    ->conversion('thumb')
                     ->circular()
                     ->limit(1),
+                TextColumn::make('inventario_dtb')
+                    ->label('# Inv.')
+                    ->numeric()
+                    ->sortable()
+                    ->searchable()
+                    ->copyable()
+                    ->alignEnd(),
                 TextColumn::make('placa')
                     ->searchable()
                     ->sortable()
@@ -60,7 +67,7 @@ class VehiclesTable
                     ->toggleable(),
                 TextColumn::make('owner.full_name')
                     ->label('Propietario')
-                    ->searchable(['owners.full_name', 'owners.document_number'])
+                    ->searchable()
                     ->toggleable()
                     ->wrap(),
                 TextColumn::make('servicio')
@@ -149,6 +156,7 @@ class VehiclesTable
                     ->label('Ficha')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
+                    ->visible(fn () => Auth::user()?->can('Download:Vehicle') ?? false)
                     ->action(function (Vehicle $record, GenerateSheetAction $generator) {
                         $path = $generator($record);
 
@@ -162,6 +170,7 @@ class VehiclesTable
                     ->label('Descargar fichas (ZIP)')
                     ->icon('heroicon-o-archive-box-arrow-down')
                     ->color('success')
+                    ->visible(fn () => Auth::user()?->can('Download:Vehicle') ?? false)
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records, GenerateBulkZipAction $bulk) {
                         try {

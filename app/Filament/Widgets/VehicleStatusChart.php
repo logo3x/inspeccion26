@@ -11,6 +11,8 @@ use Spatie\Activitylog\Models\Activity;
 
 class VehicleStatusChart extends ChartWidget
 {
+    protected static ?int $sort = 2;
+
     protected ?string $heading = 'Estados y transiciones (últimos 30 días)';
 
     protected ?string $description = 'Marcadores diarios = transiciones registradas en activity log · Etiqueta = vehículos actualmente en cada estado';

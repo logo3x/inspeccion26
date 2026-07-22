@@ -9,6 +9,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class VehicleStatesOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
+
     protected ?string $heading = 'Estados de los vehículos';
 
     protected ?string $description = 'Distribución actual con tiempo promedio en cada estado';

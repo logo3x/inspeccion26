@@ -14,6 +14,8 @@ use Spatie\Activitylog\Models\Activity;
 
 class RecentStateChanges extends TableWidget
 {
+    protected static ?int $sort = 13;
+
     protected static ?string $heading = 'Cambios de estado recientes';
 
     protected ?string $pollingInterval = '20s';

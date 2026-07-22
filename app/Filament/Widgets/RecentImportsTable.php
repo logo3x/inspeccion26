@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentImportsTable extends TableWidget
 {
+    protected static ?int $sort = 14;
+
     protected static ?string $heading = 'Últimas importaciones';
 
     protected ?string $pollingInterval = '15s';

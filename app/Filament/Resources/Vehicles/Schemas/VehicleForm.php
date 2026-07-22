@@ -225,6 +225,7 @@ class VehicleForm
                         ->icon('heroicon-o-photo')
                         ->schema([
                             SpatieMediaLibraryFileUpload::make('photos')
+                                ->label('Fotos del vehículo')
                                 ->collection(Vehicle::PHOTOS_COLLECTION)
                                 ->multiple()
                                 ->reorderable()
@@ -235,7 +236,7 @@ class VehicleForm
                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                 ->columnSpanFull()
                                 ->panelLayout('grid')
-                                ->helperText('Hasta '.Vehicle::MAX_PHOTOS.' fotos. Formatos: JPG, PNG, WEBP. Máx 5 MB c/u.'),
+                                ->helperText('Hasta '.Vehicle::MAX_PHOTOS.' fotos. Aparecen en el cuadro grande de la cabecera de la ficha.'),
                         ]),
 
                     Tab::make('Observaciones')

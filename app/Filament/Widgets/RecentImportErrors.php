@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentImportErrors extends TableWidget
 {
+    protected static ?int $sort = 15;
+
     protected static ?string $heading = 'Errores recientes en importaciones';
 
     protected ?string $pollingInterval = '15s';

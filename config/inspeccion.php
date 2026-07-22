@@ -25,11 +25,9 @@ return [
         'ciudad' => 'Bucaramanga',
     ],
 
-    // Técnico avaluador fijo. Puede cambiarse aquí sin recompilar nada.
-    'tecnico_avaluador' => [
-        'nombre' => 'Luis A. Fuentes',
-        'cargo' => 'Técnico Automotores',
-    ],
+    // Fecha del aviso de prensa vigente. Es un valor institucional fijo
+    // (no depende del vehículo) que se actualiza aquí cuando se publique uno nuevo.
+    'aviso_prensa' => '12 JULIO 2026',
 
     // Generador de número de ficha (secuencia anual independiente).
     // Formato: YYYY-NNNNNN  → "2026-000001"

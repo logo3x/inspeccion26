@@ -3,6 +3,7 @@
 namespace App\Domain\InspectionSheets\Actions;
 
 use App\Domain\InspectionSheets\Generators\DocxGenerator;
+use App\Domain\InspectionSheets\Generators\OfficialTemplateGenerator;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -10,12 +11,14 @@ use Illuminate\Support\Str;
 class GenerateSheetAction
 {
     public function __construct(
-        private readonly DocxGenerator $generator,
+        private readonly DocxGenerator $programmaticGenerator,
+        private readonly OfficialTemplateGenerator $templateGenerator,
     ) {}
 
     /**
      * Genera el .docx para un vehículo y devuelve la ruta absoluta.
-     * El archivo se guarda bajo storage/app/private/sheets/{placa}/{timestamp}_{placa}.docx
+     * Usa la plantilla oficial si existe en storage/app/private/templates/ficha.docx;
+     * de lo contrario, cae al generador programático.
      */
     public function __invoke(Vehicle $vehicle): string
     {
@@ -28,7 +31,11 @@ class GenerateSheetAction
         $disk->makeDirectory($relativeDir);
         $absolute = $disk->path($relativePath);
 
-        $this->generator->generate($vehicle, $absolute);
+        if (OfficialTemplateGenerator::isAvailable()) {
+            $this->templateGenerator->generate($vehicle, $absolute);
+        } else {
+            $this->programmaticGenerator->generate($vehicle, $absolute);
+        }
 
         return $absolute;
     }

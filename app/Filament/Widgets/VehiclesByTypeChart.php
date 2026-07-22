@@ -7,6 +7,8 @@ use Filament\Widgets\ChartWidget;
 
 class VehiclesByTypeChart extends ChartWidget
 {
+    protected static ?int $sort = 12;
+
     protected ?string $heading = 'Distribución por clase';
 
     protected ?string $pollingInterval = '60s';

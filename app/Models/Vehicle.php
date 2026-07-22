@@ -62,7 +62,11 @@ class Vehicle extends Model implements HasMedia
 
     public const PHOTOS_COLLECTION = 'photos';
 
-    public const MAX_PHOTOS = 5;
+    public const MAX_PHOTOS = 2;
+
+    public const IMPRONTA_CHASIS_COLLECTION = 'impronta_chasis';
+
+    public const IMPRONTA_MOTOR_COLLECTION = 'impronta_motor';
 
     protected function casts(): array
     {
@@ -120,10 +124,25 @@ class Vehicle extends Model implements HasMedia
         $this->addMediaCollection(self::PHOTOS_COLLECTION)
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
             ->onlyKeepLatest(self::MAX_PHOTOS);
+
+        $this->addMediaCollection(self::IMPRONTA_CHASIS_COLLECTION)
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
+
+        $this->addMediaCollection(self::IMPRONTA_MOTOR_COLLECTION)
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
     }
 
     public function registerMediaConversions(?Media $media = null): void
     {
+        // En shared hosting con proc_open deshabilitado (común en cPanel) no se
+        // pueden generar conversiones de imagen. Si no está disponible, se guarda
+        // solo el original y la columna foto en Filament cae al fallback.
+        if (! function_exists('proc_open')) {
+            return;
+        }
+
         $this->addMediaConversion('thumb')
             ->fit(Fit::Contain, 300, 300)
             ->nonQueued();

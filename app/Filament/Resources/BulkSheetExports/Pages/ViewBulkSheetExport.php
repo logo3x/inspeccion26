@@ -20,7 +20,8 @@ class ViewBulkSheetExport extends ViewRecord
                 ->label('Descargar ZIP')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
-                ->visible(fn () => $this->getRecord()->status === BulkSheetExportStatus::Completed)
+                ->visible(fn () => $this->getRecord()->status === BulkSheetExportStatus::Completed
+                    && (auth()->user()?->can('Download:Vehicle') ?? false))
                 ->action(function () {
                     /** @var BulkSheetExport $record */
                     $record = $this->getRecord();
