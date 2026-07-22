@@ -79,9 +79,6 @@ class OfficialTemplateGenerator
             'valor_economico_letras' => $valorEconomico > 0
                 ? NumberToSpanishWords::toCurrencyPesos($valorEconomico)
                 : '—',
-
-            'tecnico_nombre' => (string) config('inspeccion.tecnico_avaluador.nombre', 'Luis A. Fuentes'),
-            'tecnico_cargo' => (string) config('inspeccion.tecnico_avaluador.cargo', 'Técnico Automotores'),
         ];
 
         foreach ($values as $key => $value) {
