@@ -13,6 +13,11 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        // Permisos custom (no auto-generados por Shield)
+        foreach (['Download:Vehicle'] as $custom) {
+            Permission::firstOrCreate(['name' => $custom, 'guard_name' => 'web']);
+        }
+
         $allPermissions = Permission::query()->pluck('name')->all();
 
         // Helpers para construir conjuntos por verbo
@@ -34,13 +39,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 2. Operador — CRUD operativo de vehículos, propietarios, imports y exports
         $this->ensureRole('Operador', array_merge(
-            $vehicleRead, $vehicleWrite,
+            $vehicleRead, $vehicleWrite, ['Download:Vehicle'],
             $ownerRead, $ownerWrite,
             $importRead, $importWrite,
             $bulkExportRead, $bulkExportWrite,
         ));
 
-        // 3. Visualizador — solo lectura, NUNCA cambia datos
+        // 3. Visualizador — solo lectura, NUNCA cambia datos NI descarga fichas
         $this->ensureRole('Visualizador', array_merge(
             $vehicleRead,
             $ownerRead,
@@ -51,7 +56,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // 4. Descarga — lectura + generar exportaciones masivas (Word/ZIP)
         $this->ensureRole('Descarga', array_merge(
-            $vehicleRead,
+            $vehicleRead, ['Download:Vehicle'],
             $ownerRead,
             $bulkExportRead, $bulkExportWrite,
         ));
