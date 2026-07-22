@@ -62,7 +62,8 @@ class OfficialTemplateGenerator
             'owner_name' => $vehicle->owner?->full_name ?? '—',
             'owner_document' => $vehicle->owner?->document_number ?? '—',
 
-            'aviso_prensa' => $vehicle->aviso_prensa ?? '',
+            // Aviso de prensa: fecha institucional fija, no depende del vehículo.
+            'aviso_prensa' => (string) config('inspeccion.aviso_prensa', ''),
 
             // Resolución va vacía en la ficha
             'resolucion' => '',
