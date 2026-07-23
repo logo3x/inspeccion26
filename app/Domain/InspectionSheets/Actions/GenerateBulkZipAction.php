@@ -54,14 +54,22 @@ class GenerateBulkZipAction
         }
 
         $usedNames = [];
+        $sheetPaths = [];
         foreach ($vehicles as $vehicle) {
             $sheetPath = ($this->sheet)($vehicle);
+            $sheetPaths[] = $sheetPath;
             $entryName = $this->uniqueEntryName($this->sheet->suggestedDownloadName($vehicle), $usedNames);
             $zip->addFile($sheetPath, $entryName);
             $usedNames[$entryName] = true;
         }
 
         $zip->close();
+
+        // Las fichas individuales ya quedaron dentro del ZIP; no hace falta
+        // conservarlas sueltas en storage (evita acumular disco sin límite).
+        foreach ($sheetPaths as $sheetPath) {
+            @unlink($sheetPath);
+        }
 
         return $zipAbsolute;
     }

@@ -161,7 +161,7 @@ class VehiclesTable
                         $path = $generator($record);
 
                         return response()->download($path, $generator->suggestedDownloadName($record))
-                            ->deleteFileAfterSend(false);
+                            ->deleteFileAfterSend(true);
                     }),
                 EditAction::make(),
             ])
@@ -186,7 +186,7 @@ class VehiclesTable
                         }
 
                         return response()->download($zipPath, $bulk->suggestedZipName())
-                            ->deleteFileAfterSend(false);
+                            ->deleteFileAfterSend(true);
                     }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

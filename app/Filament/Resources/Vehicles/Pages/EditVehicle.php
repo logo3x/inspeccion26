@@ -29,7 +29,7 @@ class EditVehicle extends EditRecord
                     $path = $generator($record);
 
                     return response()->download($path, $generator->suggestedDownloadName($record))
-                        ->deleteFileAfterSend(false);
+                        ->deleteFileAfterSend(true);
                 }),
             DeleteAction::make(),
             ForceDeleteAction::make(),
