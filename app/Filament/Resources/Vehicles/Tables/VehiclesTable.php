@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -163,6 +164,7 @@ class VehiclesTable
                         return response()->download($path, $generator->suggestedDownloadName($record))
                             ->deleteFileAfterSend(true);
                     }),
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([
